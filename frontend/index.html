@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:">
+  <title>LFish</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="./i18n.js" defer></script>
+  <script src="./app.js" defer></script>
+</head>
+<body class="advanced" data-theme="purple">
+  <header class="top">
+    <div class="brand"><img class="brand-mark" src="./lfish-mark.png" alt="">LFish</div>
+    <span class="subtitle"><span data-i18n="Анализатор трафика">Анализатор трафика</span></span>
+    <div class="file-actions">
+      <button id="open" class="quiet">↥ <span data-i18n="Открыть">Открыть</span></button>
+      <div class="save-group">
+        <button id="save" class="quiet">↧ <span data-i18n="Сохранить">Сохранить</span></button>
+        <select id="format" aria-label="Формат сохранения" data-i18n-aria-label="Формат сохранения">
+          <option value="pcapng">PCAPNG</option><option value="pcap">PCAP</option>
+        </select>
+      </div>
+    </div>
+    <button id="settings" class="quiet settings-button" aria-label="Настройки" data-i18n-aria-label="Настройки" title="Настройки" data-i18n-title="Настройки">⚙</button>
+    <button id="switch-mode" class="mode" title="Переключить режим" data-i18n-title="Переключить режим"><span class="mode-dot"></span><span id="mode-name">Продвинутый вид</span> ⇄</button>
+  </header>
+  <main class="workbench" id="workbench" inert>
+    <section class="toolbar" aria-label="Управление захватом" data-i18n-aria-label="Управление захватом">
+      <button id="start" class="primary"><span aria-hidden="true">▶</span> <span data-i18n="Начать захват">Начать захват</span></button>
+      <button id="stop" disabled><span aria-hidden="true">■</span> <span data-i18n="Стоп">Стоп</span></button>
+      <button id="restart" title="Начать новый захват" data-i18n-title="Начать новый захват"><span aria-hidden="true">⟳</span> <span data-i18n="Перезапуск">Перезапуск</span></button>
+      <div class="display-filter">
+        <label for="display"><span data-i18n="Фильтр">Фильтр</span></label>
+        <span class="search"><span aria-hidden="true">⌕</span><input id="display" autocomplete="off" spellcheck="false" placeholder="tcp || udp || icmp" aria-describedby="filter-help"><button id="filter-clear" title="Очистить фильтр" data-i18n-title="Очистить фильтр" aria-label="Очистить фильтр" data-i18n-aria-label="Очистить фильтр" hidden>×</button></span>
+        <button id="filter-help" class="help advanced-only" title="Примеры фильтров отображения" data-i18n-title="Примеры фильтров отображения" aria-label="Примеры фильтров отображения" data-i18n-aria-label="Примеры фильтров отображения">?</button>
+      </div>
+      <div class="quick-filters simple-only" aria-label="Фильтры по протоколу" data-i18n-aria-label="Фильтры по протоколу"><button data-proto=""><span data-i18n="Все">Все</span></button><button data-proto="dns">DNS</button><button data-proto="tcp">TCP</button><button data-proto="tls">TLS</button><button data-proto="udp">UDP</button></div>
+    </section>
+
+    <div class="workspace">
+      <section class="center" aria-label="Разбор трафика" data-i18n-aria-label="Разбор трафика">
+        <div class="panel traffic">
+          <div class="tabs" aria-label="Представление" data-i18n-aria-label="Представление">
+            <button data-tab="packets" class="selected"><span data-i18n="Пакеты">Пакеты</span></button>
+            <button data-tab="flows"><span data-i18n="Соединения">Соединения</span></button>
+            <button data-tab="graph"><span data-i18n="График">График</span></button>
+            <button data-tab="notes"><span data-i18n="Закладки">Закладки</span> <span id="note-count" class="tag" hidden></span></button>
+            <button data-tab="diagnose"><span data-i18n="Диагностика">Диагностика</span></button>
+          </div>
+          <div id="scope" class="scope" hidden></div>
+          <div id="graph-large" class="graph-large" hidden></div>
+          <div id="table-region" class="table-region" tabindex="0" aria-label="Таблица трафика" data-i18n-aria-label="Таблица трафика">
+            <table><thead id="thead"></thead><tbody id="tbody"></tbody></table>
+            <div id="empty" class="empty" hidden></div>
+          </div>
+          <div id="diagnosis" class="diagnosis" hidden>
+            <div class="diagnosis-intro">
+              <h2><span data-i18n="Почему сайт не открылся?">Почему сайт не открылся?</span></h2>
+              <p><span data-i18n="Проверьте, что видно в текущем захвате на этапах DNS, TCP и TLS.">Проверьте, что видно в текущем захвате на этапах DNS, TCP и TLS.</span></p>
+              <form id="diagnose-form"><input id="target" aria-label="Сайт или IP" data-i18n-aria-label="Сайт или IP" placeholder="example.org" required maxlength="500" autocomplete="off" spellcheck="false"><button class="primary"><span data-i18n="Проверить">Проверить</span></button></form>
+            </div>
+            <div id="diagnosis-result" aria-live="polite"></div>
+          </div>
+          <div id="pager" class="pager"><span id="range"></span><div><button id="prev" aria-label="Предыдущая страница" data-i18n-aria-label="Предыдущая страница">‹</button><button id="next" aria-label="Следующая страница" data-i18n-aria-label="Следующая страница">›</button><button id="tail" title="Следовать за новыми пакетами" data-i18n-title="Следовать за новыми пакетами"><span data-i18n="К последним">К последним</span></button></div></div>
+        </div>
+        <div class="details">
+          <section class="panel packet-detail">
+            <div class="panel-title"><span class="accent" aria-hidden="true">⌘</span><h2><span data-i18n="Разбор пакета">Разбор пакета</span></h2><div class="packet-actions"><button id="inspect-request" class="quiet" disabled><span data-i18n="Содержимое запроса">Содержимое запроса</span></button><button id="note" class="quiet" disabled><span data-i18n="☆ Закладка">☆ Закладка</span></button></div></div>
+            <div id="packet-owner" class="packet-owner" hidden></div>
+            <div id="layers" class="detail-content muted"><span data-i18n="Выберите пакет в таблице">Выберите пакет в таблице</span></div>
+          </section>
+          <section class="panel hex-panel advanced-only">
+            <div class="panel-title"><span class="accent mono" aria-hidden="true">#</span><h2><span data-i18n="Байты пакета">Байты пакета</span></h2><span id="hex-meta" class="muted"></span></div>
+            <pre id="hex" class="detail-content muted"><span data-i18n="Здесь появится HEX и ASCII выбранного пакета">Здесь появится HEX и ASCII выбранного пакета</span></pre>
+          </section>
+        </div>
+      </section>
+
+      <aside class="sidebar" aria-label="Захват и статистика" data-i18n-aria-label="Захват и статистика">
+        <section class="panel">
+          <div class="panel-title"><span class="accent" aria-hidden="true">◉</span><h2><span data-i18n="Захват">Захват</span></h2><button id="interfaces" class="quiet" aria-label="Обновить интерфейсы" data-i18n-aria-label="Обновить интерфейсы" title="Обновить интерфейсы" data-i18n-title="Обновить интерфейсы">⟳</button></div>
+          <div class="card-body capture-settings">
+            <label for="device"><span data-i18n="Сетевой интерфейс">Сетевой интерфейс</span></label>
+            <select id="device" aria-label="Сетевой интерфейс" data-i18n-aria-label="Сетевой интерфейс"></select>
+            <span id="addresses" class="muted addresses"></span>
+            <label for="capture-filter" class="advanced-only"><span data-i18n="Фильтр захвата">Фильтр захвата</span> <small>BPF</small></label>
+            <input id="capture-filter" class="advanced-only" placeholder="например, tcp port 443" data-i18n-placeholder="например, tcp port 443" spellcheck="false" autocomplete="off">
+            <button id="sidebar-start" class="primary"><span aria-hidden="true">▶</span> <span data-i18n="Начать захват">Начать захват</span></button>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="panel-title"><span class="accent" aria-hidden="true">▤</span><h2><span data-i18n="Статистика">Статистика</span></h2></div>
+          <dl class="card-body stat-list"><div><dt><span data-i18n="Пакеты">Пакеты</span></dt><dd id="count">0</dd></div><div><dt><span data-i18n="Отображено">Отображено</span></dt><dd id="displayed">0</dd></div><div><dt><span data-i18n="Закладки">Закладки</span></dt><dd id="marked">0</dd></div><div><dt><span data-i18n="Потеряно ядром">Потеряно ядром</span></dt><dd id="dropped">—</dd></div></dl>
+        </section>
+        <section class="panel">
+          <div class="panel-title"><span class="accent" aria-hidden="true">⌁</span><h2><span data-i18n="Скорость трафика">Скорость трафика</span></h2><button id="expand-chart" class="quiet" title="Развернуть график" data-i18n-title="Развернуть график" aria-label="Развернуть график" data-i18n-aria-label="Развернуть график">↗</button></div>
+          <div id="graph-small" class="card-body chart-small"></div>
+        </section>
+        <section class="panel">
+          <div class="panel-title"><span class="accent" aria-hidden="true">▥</span><h2><span data-i18n="Протоколы">Протоколы</span></h2></div>
+          <div id="protocols" class="card-body protocols muted"><span data-i18n="Нет данных">Нет данных</span></div>
+        </section>
+      </aside>
+    </div>
+    <footer class="status"><span class="status-dot" id="status-dot"></span><span id="status-label"><span data-i18n="Готов к захвату">Готов к захвату</span></span><span id="status-file"></span><span id="status-bytes" class="mono"><span data-i18n="0 Б">0 Б</span></span></footer>
+  </main>
+  <div id="toast" role="status" hidden></div>
+
+  <dialog id="welcome" class="welcome" aria-labelledby="welcome-title">
+    <div class="welcome-header">
+      <div class="brand"><img class="brand-mark" src="./lfish-mark.png" alt="">LFish</div>
+      <select id="welcome-language" aria-label="Язык" data-i18n-aria-label="Язык"><option value="ru">RU</option><option value="en">ENG</option><option value="uk">UA</option></select>
+    </div>
+    <h1 id="welcome-title"><span data-i18n="Какой вид вам удобнее?">Какой вид вам удобнее?</span></h1>
+    <p><span data-i18n="Вы сможете переключить режим в любой момент.">Вы сможете переключить режим в любой момент.</span></p>
+    <div class="choices">
+      <button data-mode="simple"><span class="choice-icon" aria-hidden="true">◈</span><strong><span data-i18n="Простой">Простой</span></strong><span><span data-i18n="Понятные события, быстрые фильтры и диагностика сайта.">Понятные события, быстрые фильтры и диагностика сайта.</span></span></button>
+      <button data-mode="advanced"><span class="choice-icon mono" aria-hidden="true">#</span><strong><span data-i18n="Продвинутый">Продвинутый</span></strong><span><span data-i18n="Таблица пакетов, дерево протоколов, HEX и фильтры захвата.">Таблица пакетов, дерево протоколов, HEX и фильтры захвата.</span></span></button>
+    </div>
+    <p id="mode-error" class="error" hidden></p>
+  </dialog>
+  <dialog id="note-dialog" aria-labelledby="note-title">
+    <form id="note-form">
+      <h2 id="note-title"><span data-i18n="Закладка пакета">Закладка пакета</span></h2>
+      <label for="note-text"><span data-i18n="Заметка">Заметка</span></label>
+      <textarea id="note-text" rows="5" maxlength="4000" placeholder="Что важно в этом пакете?" data-i18n-placeholder="Что важно в этом пакете?"></textarea>
+      <p class="muted"><span data-i18n="Заметки сохраняются в PCAPNG.">Заметки сохраняются в PCAPNG.</span></p>
+      <p id="note-error" class="error" hidden></p>
+      <div class="dialog-actions"><button type="button" id="delete-note" class="quiet"><span data-i18n="Удалить">Удалить</span></button><button type="button" id="cancel-note"><span data-i18n="Отмена">Отмена</span></button><button class="primary"><span data-i18n="Сохранить">Сохранить</span></button></div>
+    </form>
+  </dialog>
+  <dialog id="request-dialog" aria-labelledby="request-title">
+    <div class="request-heading">
+      <h2 id="request-title" data-i18n="Содержимое запроса">Содержимое запроса</h2>
+      <button id="refresh-request" type="button" class="quiet" data-i18n="Обновить">Обновить</button>
+    </div>
+    <select id="request-choice" aria-label="Запросы соединения" data-i18n-aria-label="Запросы соединения" hidden></select>
+    <p id="request-status" class="muted" role="status"></p>
+    <div id="request-result" class="request-result"></div>
+    <form method="dialog" class="dialog-actions"><button><span data-i18n="Закрыть">Закрыть</span></button></form>
+  </dialog>
+  <dialog id="help-dialog" aria-labelledby="help-title">
+    <h2 id="help-title"><span data-i18n="Фильтр отображения">Фильтр отображения</span></h2>
+    <p><code>tcp || udp</code> <span data-i18n="— показать TCP или UDP">— показать TCP или UDP</span></p>
+    <p><code>tls && port=443</code> <span data-i18n="— TLS на порту 443">— TLS на порту 443</span></p>
+    <p><code>src=192.168.1.10</code> <span data-i18n="— пакеты с этого адреса">— пакеты с этого адреса</span></p>
+    <p><code>dst=1.1.1.1</code> <span data-i18n="— пакеты на этот адрес">— пакеты на этот адрес</span></p>
+    <p><code>id=42</code> <span data-i18n="— пакет по номеру">— пакет по номеру</span></p>
+    <p><span data-i18n="Можно также искать по адресу, описанию пакета или заметке.">Можно также искать по адресу, описанию пакета или заметке.</span></p>
+    <form method="dialog" class="dialog-actions"><button><span data-i18n="Закрыть">Закрыть</span></button></form>
+  </dialog>
+  <dialog id="settings-dialog" aria-labelledby="settings-title">
+    <h2 id="settings-title"><span data-i18n="Настройки">Настройки</span></h2>
+    <div class="settings-fields">
+      <label for="language"><span data-i18n="Язык">Язык</span></label>
+      <select id="language"><option value="ru">RU</option><option value="en">ENG</option><option value="uk">UA</option></select>
+      <label for="theme"><span data-i18n="Тема">Тема</span></label>
+      <select id="theme">
+        <option value="purple" data-i18n="Фиолетовая">Фиолетовая</option>
+        <option value="dark" data-i18n="Чёрно-белая">Чёрно-белая</option>
+        <option value="light" data-i18n="Бело-чёрная">Бело-чёрная</option>
+      </select>
+    </div>
+    <p id="settings-error" class="error" hidden></p>
+    <form method="dialog" class="dialog-actions"><button><span data-i18n="Закрыть">Закрыть</span></button></form>
+  </dialog>
+  <dialog id="confirm-dialog" aria-labelledby="confirm-title">
+    <h2 id="confirm-title"></h2>
+    <p id="confirm-text"></p>
+    <form method="dialog" class="dialog-actions"><button value="cancel" autofocus><span data-i18n="Отмена">Отмена</span></button><button id="confirm-go" value="go" class="primary"><span data-i18n="Продолжить">Продолжить</span></button></form>
+  </dialog>
+</body>
+</html>
