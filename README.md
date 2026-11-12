@@ -70,12 +70,9 @@ sudo zypper install go gcc make pkg-config gtk3-devel libwebkit2gtk-4_1-0-devel 
 **2. Clone the repository**
 
 ```bash
-git clone https://github.com/USERNAME/LFish.git
+git clone https://github.com/lock3d9//LFish.git
 cd LFish
 ```
-
-Replace `USERNAME` with the GitHub repository owner's username.
-
 **3. Build and run**
 
 ```bash
@@ -149,11 +146,9 @@ sudo zypper install go gcc make pkg-config gtk3-devel libwebkit2gtk-4_1-0-devel 
 **2. Клонирование репозитория**
 
 ```bash
-git clone https://github.com/USERNAME/LFish.git
+git clone https://github.com/lock3d9/LFish.git
 cd LFish
 ```
-
-Замените `USERNAME` на имя владельца репозитория GitHub.
 
 **3. Сборка и запуск**
 
@@ -228,11 +223,9 @@ sudo zypper install go gcc make pkg-config gtk3-devel libwebkit2gtk-4_1-0-devel 
 **2. Клонування репозиторію**
 
 ```bash
-git clone https://github.com/USERNAME/LFish.git
+git clone https://github.com/lock3d9/LFish.git
 cd LFish
 ```
-
-Замініть `USERNAME` на ім'я власника репозиторію GitHub.
 
 **3. Збірка та запуск**
 
