@@ -1,5 +1,5 @@
 # LFish
-
+(educational project)
 > [!WARNING]
 > **English (EN)**
 >
