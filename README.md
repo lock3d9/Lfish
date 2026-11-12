@@ -1,7 +1,7 @@
 # LFish
 
 > [!WARNING]
-> AI was used to develop the interface design, so please report any bugs.
+> AI was used to develop the interface design, so please report any bugs.\n
 > При разработке дизайна интерфейса использовался искусственный интеллект, поэтому, пожалуйста, сообщайте о любых ошибках.
 > Для розробки дизайну інтерфейсу використовувався штучний інтелект, тому, будь ласка, повідомляйте про будь-які помилки.
 
