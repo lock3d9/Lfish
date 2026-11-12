@@ -1,5 +1,10 @@
 # LFish
 
+> [!WARNING]
+> AI was used to develop the interface design, so please report any bugs.
+> При разработке дизайна интерфейса использовался искусственный интеллект, поэтому, пожалуйста, сообщайте о любых ошибках.
+> Для розробки дизайну інтерфейсу використовувався штучний інтелект, тому, будь ласка, повідомляйте про будь-які помилки.
+
 A lightweight network traffic analyzer for Linux, built with **Go** and **Wails**.
 
 **Language:** [English](#english) | [Русский](#русский) | [Українська](#українська)
