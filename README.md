@@ -15,7 +15,7 @@
 
 ## English
 
-LFish is a network traffic analyzer with simple and advanced modes.
+LFish is a network traffic analyzer for Linux, with simple and advanced modes.
 
 **Features:**
 - Live packet capture, PCAP/PCAPNG
