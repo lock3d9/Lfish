@@ -9,8 +9,6 @@
 >
 > **UA:** Дизайн інтерфейсу створювався за допомогою ШІ. Про помилки повідомляйте в Issues.
 
-A network traffic analyzer for Linux, written in **Go** and **Wails**.
-
 **Languages:** [English](#english) | [Русский](#русский) | [Українська](#українська)
 
 ---
